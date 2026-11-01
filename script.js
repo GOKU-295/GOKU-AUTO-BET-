@@ -1,5 +1,5 @@
 (function(){
-    if(document.getElementById('goku-app-root')) return;
+    // અહીંથી ઓટોમેટિક રન થવાનું હટાવી દીધું છે
 
     window.alert = function(msg) { console.log('GOKU Ignored Alert:', msg); };
     window.confirm = function(msg) { console.log('GOKU Auto-Confirmed:', msg); return true; };
@@ -12,7 +12,16 @@
     
     var HISTORY_API = "https://draw.ar-lottery01.com/WinGo/";
 
-    initGokuApp();
+    // આ ફંક્શન બટન દબાવવાથી કોલ થશે
+    window.openGokuBot = function() {
+        if(document.getElementById('goku-app-root')) {
+            // જો પહેલેથી ઓપન હોય તો ફરી પેનલ દેખાડો
+            var panel = document.getElementById('goku-app-root').shadowRoot.getElementById('gk-panel');
+            if(panel) panel.style.display = 'flex';
+            return;
+        }
+        initGokuApp();
+    };
 
     function initGokuApp(){
         var deviceId = window.goku_android_device_id || localStorage.getItem('goku_device_id');
@@ -29,13 +38,13 @@
 button{-webkit-appearance:none;appearance:none;border:none;background:none;font-family:inherit;cursor:pointer}
 #gk-pill,#gk-panel{user-select:none;-webkit-user-select:none;line-height:1.25;font-size:14px;color:#1f1b3a;text-align:left}
 
-/* અહીં પિલ ને છુપાવી દીધું છે */
+/* પિલ છુપાવેલી છે */
 #gk-pill{position:fixed;top:120px;right:12px;z-index:2147483647;display:none !important;align-items:center;gap:8px;background:linear-gradient(135deg,#fdecea,#efe6ff);border:1px solid #fff;color:#4c3fb0;padding:6px 14px 6px 6px;border-radius:30px;box-shadow:0 8px 24px rgba(76,63,176,.3);touch-action:none;cursor:pointer;font-size:12px;font-weight:800}
 .gk-pdot{width:28px;height:28px;border-radius:50%;background:#7c6ee6;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px}
 #gk-pill.on .gk-pdot{background:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.3)}
 #gk-pill-time{font-variant-numeric:tabular-nums}
 
-/* અહીં આંખ વાળું બટન છુપાવી દીધું છે */
+/* આંખ વાળું બટન છુપાવેલું છે */
 .gk-eye{display:none !important;}
 
 #gk-panel{position:fixed;width:340px;max-width:94vw;max-height:94vh;z-index:2147483646;display:none;flex-direction:column;border-radius:34px;background:linear-gradient(160deg,#fbe6df 0%,#f6e6f4 38%,#efe6fb 70%,#fae7f1 100%);border:1.5px solid rgba(255,255,255,.95);box-shadow:0 0 0 1px rgba(124,110,230,.18),0 26px 60px rgba(60,40,140,.38);overflow:hidden}
@@ -342,9 +351,10 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
             panel.style.left = Math.max(4, Math.min(window.innerWidth - w - 4, l)) + 'px';
             panel.style.top = Math.max(4, Math.min(window.innerHeight - h - 4, t)) + 'px';
         }
+        
+        // પેનલ ઓપન કરવાનું ફંક્શન
         function openPanel(){
             panel.style.display = 'flex'; 
-            pill.style.display = 'none';
             if(!panel.getAttribute('data-placed')){
                 panel.style.left = Math.max(4, (window.innerWidth - panel.offsetWidth) / 2) + 'px';
                 panel.style.top = Math.max(4, (window.innerHeight - panel.offsetHeight) / 2) + 'px';
@@ -352,9 +362,6 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
             }
             clampPanel();
         }
-        // Minimize ફંક્શન ડિસેબલ કરેલું છે
-        function minimizePanel(){ panel.style.display = 'none'; }
-        // $('gk-hide').onclick = minimizePanel; 
 
         function makeDraggable(el, handle, onTap){
             var sx=0, sy=0, ox=0, oy=0, moved=false, down=false;
@@ -402,7 +409,6 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
         }, 5000);
 
         setInterval(function(){
-            // પિલ અપડેટ કોડ કાઢી નાખ્યો છે
             if($('gk-setbox').style.display === 'block') renderLog();
         }, 1000);
 
@@ -1325,6 +1331,10 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
         fillSettingsInputs();
         updateStatsUI();
         startLiveClock();
+        
+        // પેનલ ઓપન કરો
+        openPanel();
+        
         console.log('GOKU: Bot ready — 2.5s API Delay & Max Bet Hard Stop Active');
     }
 })();
