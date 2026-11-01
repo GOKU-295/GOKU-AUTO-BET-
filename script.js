@@ -1,29 +1,50 @@
 (function(){
-    // અહીંથી ઓટોમેટિક રન થવાનું હટાવી દીધું છે
+    // જો સ્ક્રિપ્ટ પહેલેથી લોડ થઈ હોય તો ફરી ના ચાલે
+    if(window.gokuBotInitialized) return;
+    window.gokuBotInitialized = true;
 
     window.alert = function(msg) { console.log('GOKU Ignored Alert:', msg); };
     window.confirm = function(msg) { console.log('GOKU Auto-Confirmed:', msg); return true; };
 
     var PREDICTION_API_BASE_URLS = [
-        "https://goku-x-mods-api.lovable.app/api/",       // S1
-        "https://example-api-2.lovable.app/api/",         // S2
-        "https://example-api-3.lovable.app/api/"          // S3
+        "https://goku-x-mods-api.lovable.app/api/",       
+        "https://example-api-2.lovable.app/api/",         
+        "https://example-api-3.lovable.app/api/"          
     ];
     
     var HISTORY_API = "https://draw.ar-lottery01.com/WinGo/";
 
-    // આ ફંક્શન બટન દબાવવાથી કોલ થશે
-    window.openGokuBot = function() {
-        if(document.getElementById('goku-app-root')) {
-            // જો પહેલેથી ઓપન હોય તો ફરી પેનલ દેખાડો
-            var panel = document.getElementById('goku-app-root').shadowRoot.getElementById('gk-panel');
-            if(panel) panel.style.display = 'flex';
-            return;
+    // આ લિસનર સ્ક્રીનના નીચે જમણી બાજુના ક્લિકને પકડશે (તમારું પર્પલ બટન)
+    document.addEventListener('click', function(e) {
+        // નીચે જમણી બાજુ 120px ની અંદર ક્લિક થયું છે કે નહીં તે ચેક કરે છે
+        var isRight = e.clientX > window.innerWidth - 120;
+        var isBottom = e.clientY > window.innerHeight - 180;
+
+        if (isRight && isBottom) {
+            toggleGokuBot();
         }
-        initGokuApp();
+    }, true);
+
+    // પેનલ ખોલવા અને બંધ કરવાનું ફંક્શન
+    window.toggleGokuBot = function() {
+        var root = document.getElementById('goku-app-root');
+        if (root) {
+            var panel = root.shadowRoot.getElementById('gk-panel');
+            if (panel) {
+                // જો પેનલ બંધ હોય તો ખોલો, જો ખુલ્લી હોય તો એમ જ રહેવા દો
+                if (panel.style.display === 'none' || panel.style.display === '') {
+                    panel.style.display = 'flex';
+                }
+            }
+        } else {
+            // જો પહેલી વાર ક્લિક થાય તો સ્ક્રિપ્ટ બનાવો
+            initGokuApp();
+        }
     };
 
     function initGokuApp(){
+        if(document.getElementById('goku-app-root')) return;
+
         var deviceId = window.goku_android_device_id || localStorage.getItem('goku_device_id');
         if (!deviceId || deviceId.indexOf('GOKU-') !== 0) { deviceId = 'GOKU-' + Math.random().toString(36).substring(2, 10).toUpperCase(); }
         localStorage.setItem('goku_device_id', deviceId); window.goku_current_device = deviceId;
@@ -38,14 +59,11 @@
 button{-webkit-appearance:none;appearance:none;border:none;background:none;font-family:inherit;cursor:pointer}
 #gk-pill,#gk-panel{user-select:none;-webkit-user-select:none;line-height:1.25;font-size:14px;color:#1f1b3a;text-align:left}
 
-/* પિલ છુપાવેલી છે */
-#gk-pill{position:fixed;top:120px;right:12px;z-index:2147483647;display:none !important;align-items:center;gap:8px;background:linear-gradient(135deg,#fdecea,#efe6ff);border:1px solid #fff;color:#4c3fb0;padding:6px 14px 6px 6px;border-radius:30px;box-shadow:0 8px 24px rgba(76,63,176,.3);touch-action:none;cursor:pointer;font-size:12px;font-weight:800}
-.gk-pdot{width:28px;height:28px;border-radius:50%;background:#7c6ee6;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px}
-#gk-pill.on .gk-pdot{background:#059669;box-shadow:0 0 0 3px rgba(5,150,105,.3)}
-#gk-pill-time{font-variant-numeric:tabular-nums}
+/* પિલ ને કાયમ માટે છુપાવી દીધી છે */
+#gk-pill{display:none !important;}
 
-/* આંખ વાળું બટન છુપાવેલું છે */
-.gk-eye{display:none !important;}
+/* આંખ વાળું બટન (Close) */
+.gk-eye{width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 
 #gk-panel{position:fixed;width:340px;max-width:94vw;max-height:94vh;z-index:2147483646;display:none;flex-direction:column;border-radius:34px;background:linear-gradient(160deg,#fbe6df 0%,#f6e6f4 38%,#efe6fb 70%,#fae7f1 100%);border:1.5px solid rgba(255,255,255,.95);box-shadow:0 0 0 1px rgba(124,110,230,.18),0 26px 60px rgba(60,40,140,.38);overflow:hidden}
 .gk-head{display:flex;align-items:center;gap:12px;padding:14px 18px 12px;cursor:move;touch-action:none;border-bottom:1px solid rgba(124,110,230,.14)}
@@ -165,13 +183,6 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
         }
 
         var gkTpl = document.createElement('div'); gkTpl.innerHTML = `
-<div id="gk-pill">
-    <div class="gk-pdot">G</div>
-    <div id="gk-pill-pred">GOKU</div>
-    <div id="gk-pill-time">00:00</div>
-    <div id="gk-pill-pl">+0</div>
-</div>
-
 <div id="gk-panel">
     <div class="gk-head" id="gk-move">
         <div class="gk-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.4 6.6L21 9l-5 4.4L17.5 20 12 16.5 6.5 20 8 13.4 3 9l6.6-.4z"/></svg></div>
@@ -285,7 +296,7 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
         document.body.appendChild(root);
 
         function $(id){ return shadow.getElementById(id); }
-        var pill = $('gk-pill'), panel = $('gk-panel');
+        var panel = $('gk-panel');
 
         var isBotRunning = false;
         var isAutoScale = false, autoScaleLevels = 5, fixedBaseBet = 10, martingaleMultiplier = 2, maxLevelsAllowed = 5;
@@ -352,7 +363,6 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
             panel.style.top = Math.max(4, Math.min(window.innerHeight - h - 4, t)) + 'px';
         }
         
-        // પેનલ ઓપન કરવાનું ફંક્શન
         function openPanel(){
             panel.style.display = 'flex'; 
             if(!panel.getAttribute('data-placed')){
@@ -362,6 +372,14 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
             }
             clampPanel();
         }
+
+        // ક્લોઝ કરવા માટેનું ફંક્શન (ફક્ત પેનલ બંધ કરશે, પોઝિશન સેવ રહેશે)
+        function minimizePanel(){ 
+            panel.style.display = 'none'; 
+        }
+
+        // આંખ વાળા બટન પર ક્લિક કરવાથી પેનલ બંધ થશે
+        $('gk-hide').onclick = minimizePanel;
 
         function makeDraggable(el, handle, onTap){
             var sx=0, sy=0, ox=0, oy=0, moved=false, down=false;
@@ -380,7 +398,7 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
             handle.addEventListener('touchend', end);
             handle.addEventListener('mousedown', function(e){ start(e.clientX, e.clientY); document.onmousemove=function(ev){ move(ev.clientX, ev.clientY); }; document.onmouseup=function(){ end(); document.onmousemove=null; document.onmouseup=null; }; });
         }
-        makeDraggable(pill, pill, openPanel);
+        
         makeDraggable(panel, $('gk-move'), null);
 
         $('gk-settog').onclick = function(){
@@ -1332,8 +1350,8 @@ button{-webkit-appearance:none;appearance:none;border:none;background:none;font-
         updateStatsUI();
         startLiveClock();
         
-        // પેનલ ઓપન કરો
-        openPanel();
+        // જ્યારે પહેલી વાર ક્લિક થાય ત્યારે પેનલ ઓપન કરો
+        openPanel(); 
         
         console.log('GOKU: Bot ready — 2.5s API Delay & Max Bet Hard Stop Active');
     }
